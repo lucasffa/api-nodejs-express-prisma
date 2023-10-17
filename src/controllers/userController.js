@@ -1,39 +1,72 @@
 const UserService = require('../services/userService');
 const userService = new UserService();
 
+// - Recebe as requisições HTTP de acordo com as rotas definidas em src/routes/userRoutes.js
+// - Chama os métodos apropriados do service
+// - Retorna a resposta HTTP adequada
 class UserController {
-    async createUser(req, res, next) {
+    
+    // - Recebe a requisição HTTP
+    // - Chama o método apropriado do service de acordo com os dados recebidos para criar o usuário
+    // - Retorna a resposta HTTP adequada
+    async createUser(req, res) {
         try {
-            const userData = req.body;
-            const user = await userService.createUser(userData);
-            return res.status(201).json({ user });
+            console.log("req.body em try de createUser em userController: ", req.body)
+            const user = await userService.createUser(req.body);
+            res.status(201).json(user);
         } catch (error) {
-            next(error);
+            if (error.message === 'Este e-mail já está em uso. Por favor, escolha outro.') {
+                res.status(400).json({ message: error.message });
+            } else {
+                
+                console.log("req.body em catch de createUser em userController: ", req.body)
+                // Para erros desconhecidos, retorne um erro 500 (Internal Server Error)
+                res.status(500).json({ message: 'Ocorreu um erro ao criar o usuário.' });
+            }
         }
     }
 
+    // - Recebe a requisição HTTP
+    // - Chama o método apropriado do service de acordo com o ID recebido para buscar o usuário
+    // - Retorna a resposta HTTP adequada
     async getUserById(req, res, next) {
         try {
             const { id } = req.params;
             const user = await userService.getUserById(id);
-            if (!user) {
-                return res.status(404).json({ message: 'User not found' });
-            }
             return res.status(200).json({ user });
         } catch (error) {
-            next(error);
+            if (error.message === 'User not found') {
+                res.status(400).json({ message: "Ocorreu um erro ao encontrar o usuário." });
+            } else {
+                
+                // Para erros desconhecidos, retorne um erro 500 (Internal Server Error)
+                res.status(500).json({ message: 'Ocorreu um erro ao trazer dados do usuário.' });
+            }
         }
     }
 
+    // - Recebe a requisição HTTP
+    // - Chama o método apropriado do service de acordo com os dados recebidos para buscar todos os usuários
+    // - Retorna a resposta HTTP adequada
     async getAllUsers(req, res, next) {
         try {
             const users = await userService.getAllUsers();
             return res.status(200).json({ users });
         } catch (error) {
-            next(error);
+            if (error.message === 'User not found') {
+                res.status(400).json({ message: "Ocorreu um erro ao encontrar o usuário." });
+            } else {
+                
+                // Para erros desconhecidos, retorne um erro 500 (Internal Server Error)
+                res.status(500).json({ message: 'Ocorreu um erro ao trazer dados dos usuários.' });
+            }
         }
     }
 
+    
+    // - Recebe a requisição HTTP
+    // - Chama o método apropriado do service de acordo com os dados recebidos para atualizar o usuário
+    // - Retorna a resposta HTTP adequada
     async updateUser(req, res, next) {
         try {
             const { id } = req.params;
@@ -44,20 +77,36 @@ class UserController {
             }
             return res.status(200).json({ user });
         } catch (error) {
-            next(error);
+            if (error.message === 'User not found') {
+                next(error);
+                //res.status(400).json({ message: "Ocorreu um erro ao encontrar o usuário." });
+            } else {
+                next(error);
+                // Para erros desconhecidos, retorne um erro 500 (Internal Server Error)
+                //res.status(500).json({ message: 'Ocorreu um erro ao atualizar o usuário.' });
+            }
         }
     }
 
+    
+    // - Recebe a requisição HTTP
+    // - Chama o método apropriado do service de acordo com os dados recebidos para deletar o usuário
+    // - Retorna a resposta HTTP adequada
     async deleteUser(req, res, next) {
         try {
             const { id } = req.params;
             const user = await userService.deleteUser(id);
-            if (!user) {
-                return res.status(404).json({ message: 'User not found' });
-            }
+
             return res.status(200).json({ message: 'User deleted successfully' });
         } catch (error) {
-            next(error);
+            
+            if (error.message === 'User not found') {
+                next(error);
+            } else {
+                
+                // Para erros desconhecidos, retorne um erro 500 (Internal Server Error)
+                next(error);
+            }
         }
     }
 }

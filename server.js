@@ -1,5 +1,6 @@
 const express = require('express');
-const userRoutes = require('./routes/userRoutes');
+const userRoutes = require('./src/routes/userRoutes');
+const errorHandlerMiddleware = require('./src/middlewares/errorHandler');
 
 const app = express();
 
@@ -9,11 +10,9 @@ app.use(express.json()); // Para poder receber e interpretar JSON nas requisiç�
 // Rotas
 app.use('/users', userRoutes);
 
-// Middleware de tratamento de erros (colocar no final, após todas as outras rotas e middlewares)
-app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).send('Something broke!');
-});
+// Middleware de tratamento de erros no final, depois de todas as outras rotas e middlewares.
+app.use(errorHandlerMiddleware);
+
 
 // Iniciando o servidor
 const PORT = process.env.PORT || 3000;
