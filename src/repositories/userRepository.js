@@ -1,3 +1,51 @@
+/**
+ * src/repositories/userRepository.js
+ * Data: 17/10/2023
+ * Autor: http://github.com/lucasffa/
+ * Descrição: Repositório que gerencia as operações relacionadas à entidade de usuário no banco de dados usando o Prisma.
+ * 
+ * Responsabilidades:
+ * - Realizar operações CRUD (Criar, Ler, Atualizar e Deletar) no banco de dados.
+ * - Lançar erros personalizados quando ocorrem problemas.
+ * 
+ * Métodos:
+ * 
+ * 1. create(userData):
+ *    - Descrição: Adiciona um novo usuário ao banco de dados.
+ *    - Parâmetros: `userData` - Dados do usuário a ser criado.
+ *    - Retorno: Retorna o usuário criado ou lança um erro específico.
+ * 
+ * 2. findById(id):
+ *    - Descrição: Busca um usuário pelo seu ID no banco de dados.
+ *    - Parâmetros: `id` - ID do usuário.
+ *    - Retorno: Retorna o usuário encontrado ou lança um erro específico.
+ * 
+ * 3. findAll():
+ *    - Descrição: Busca todos os usuários no banco de dados.
+ *    - Parâmetros: Não possui parâmetros.
+ *    - Retorno: Retorna uma lista de usuários ou lança um erro específico.
+ * 
+ * 4. update(id, updateData):
+ *    - Descrição: Atualiza um usuário no banco de dados pelo seu ID.
+ *    - Parâmetros: `id` - ID do usuário; `updateData` - Dados a serem atualizados.
+ *    - Retorno: Retorna o usuário atualizado ou lança um erro específico.
+ * 
+ * 5. delete(id):
+ *    - Descrição: Deleta um usuário do banco de dados pelo seu ID.
+ *    - Parâmetros: `id` - ID do usuário.
+ *    - Retorno: Retorna o usuário deletado ou lança um erro específico.
+ * 
+ * 6. existingId(id):
+ *    - Descrição: Verifica se um usuário com um ID específico existe no banco de dados.
+ *    - Parâmetros: `id` - ID do usuário.
+ *    - Retorno: Retorna verdadeiro se o usuário existir, caso contrário, lança um erro `IdNotFoundError`.
+ * 
+ * Observações:
+ * - Utiliza o Prisma para realizar operações no banco de dados.
+ * - Utiliza erros personalizados definidos em `userErrors.js` para tratar e informar problemas específicos.
+ * 
+ */
+
 const {
     IdNotFoundError,
     UserNotFoundError,
@@ -12,8 +60,7 @@ const {
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
-// - Recebe os dados do usuário
-// - Chama o método apropriado do prisma para lidar com a criação do usuário, a busca de um usuário, a busca de todos os usuários, a atualização de um usuário e a deleção de um usuário
+// Classe de repositório para gerenciar as operações relacionadas à entidade de usuário no banco de dados
 class UserRepository {
 
     // - Recebe os dados do usuário

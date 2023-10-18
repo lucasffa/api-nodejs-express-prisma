@@ -1,9 +1,50 @@
+/**
+ * src/controllers/userController.js
+ * Data: 17/10/2023
+ * Autor: http://github.com/lucasffa/
+ * Descrição: Controlador que gerencia as requisições relacionadas à entidade de usuário.
+ * 
+ * Responsabilidades:
+ * - Receber as requisições HTTP.
+ * - Chamar os métodos apropriados do serviço (`UserService`).
+ * - Retornar respostas HTTP adequadas.
+ * 
+ * Métodos:
+ * 
+ * 1. createUser(req, res):
+ *    - Descrição: Cria um novo usuário.
+ *    - Requisição: Espera receber no corpo da requisição os dados necessários para criar um usuário.
+ *    - Resposta: Retorna o usuário criado com status 201 (Created) ou um erro adequado.
+ * 
+ * 2. getUserById(req, res):
+ *    - Descrição: Busca um usuário pelo seu ID.
+ *    - Requisição: Espera receber o ID do usuário como parâmetro na URL.
+ *    - Resposta: Retorna o usuário encontrado com status 200 (OK) ou um erro adequado.
+ * 
+ * 3. getAllUsers(req, res):
+ *    - Descrição: Retorna uma lista de todos os usuários.
+ *    - Requisição: Não espera receber nenhum parâmetro específico.
+ *    - Resposta: Retorna a lista de usuários com status 200 (OK) ou um erro adequado.
+ * 
+ * 4. updateUser(req, res):
+ *    - Descrição: Atualiza os detalhes de um usuário específico.
+ *    - Requisição: Espera receber o ID do usuário como parâmetro na URL e os dados atualizados no corpo da requisição.
+ *    - Resposta: Retorna o usuário atualizado com status 200 (OK) ou um erro adequado.
+ * 
+ * 5. deleteUser(req, res):
+ *    - Descrição: Exclui um usuário pelo seu ID.
+ *    - Requisição: Espera receber o ID do usuário como parâmetro na URL.
+ *    - Resposta: Retorna uma mensagem de sucesso com status 200 (OK) ou um erro adequado.
+ * 
+ * Observações:
+ * - Este controlador depende do `UserService` para realizar operações relacionadas ao usuário no banco de dados ou outras lógicas de negócio.
+ * 
+ */
+
 const UserService = require('../services/userService');
 const userService = new UserService();
 
-// - Recebe as requisições HTTP de acordo com as rotas definidas em src/routes/userRoutes.js
-// - Chama os métodos apropriados do service
-// - Retorna a resposta HTTP adequada
+// Classe de controller para gerenciar as requisições HTTP relacionadas à entidade de usuário
 class UserController {
     
     // - Recebe a requisição HTTP
@@ -111,4 +152,5 @@ class UserController {
     }
 }
 
+// Exportando o controller
 module.exports = new UserController();

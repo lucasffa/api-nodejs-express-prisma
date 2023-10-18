@@ -1,6 +1,38 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
+/**
+ * src/prisma/schema.prisma
+ * Data: 17/10/2023
+ * Autor: http://github.com/lucasffa/
+ * Descrição: Arquivo de esquema Prisma que define a configuração e o modelo de dados da aplicação.
+ * 
+ * Conteúdo:
+ * 
+ * 1. Configuração do Gerador:
+ *    - `generator client`: Define a configuração para gerar o cliente Prisma.
+ *    - `provider`: Define o provedor do cliente Prisma como "prisma-client-js".
+ * 
+ * 2. Configuração da Fonte de Dados:
+ *    - `datasource db`: Define a configuração da fonte de dados para a aplicação.
+ *    - `provider`: Especifica que a aplicação está usando um banco de dados MySQL.
+ *    - `url`: Utiliza uma variável de ambiente para determinar a URL do banco de dados.
+ * 
+ * 3. Modelos:
+ * 
+ *    Model User:
+ *    - Representa a entidade "User" no banco de dados.
+ *    - Campos:
+ *      a. `id`: Campo autoincrementado que representa a chave primária.
+ *      b. `uuid`: Representa o UUID do usuário. Ele é único e seu valor padrão é gerado automaticamente.
+ *      c. `name`: Representa o nome do usuário.
+ *      d. `email`: Representa o email do usuário. Ele é único, garantindo que não haverá dois usuários com o mesmo email.
+ *      e. `password`: Representa a senha do usuário.
+ *      f. `createdAt`: Representa a data e hora em que o usuário foi criado. Seu valor padrão é a data e hora atual.
+ *      g. `updatedAt`: Representa a data e hora da última atualização do registro do usuário. Seu valor é atualizado automaticamente sempre que o registro do usuário é modificado.
+ * 
+ * Observações:
+ * - Para mais informações sobre o esquema Prisma e sua sintaxe, consulte a documentação oficial em: https://pris.ly/d/prisma-schema
+ * 
+ */
+ 
 generator client {
   provider = "prisma-client-js"
 }

@@ -1,9 +1,50 @@
+/**
+ * src/services/userService.js
+ * Data: 17/10/2023
+ * Autor: http://github.com/lucasffa/
+ * Descrição: Serviço que gerencia as operações relacionadas à entidade de usuário.
+ * 
+ * Responsabilidades:
+ * - Processar as requisições recebidas dos controllers.
+ * - Chamar os métodos apropriados do repositório (`UserRepository`).
+ * - Retornar os dados processados ou erros, conforme necessário.
+ * 
+ * Métodos:
+ * 
+ * 1. createUser(userData):
+ *    - Descrição: Cria um novo usuário.
+ *    - Parâmetros: Recebe um objeto `userData` contendo os dados do usuário a ser criado.
+ *    - Retorno: Retorna o usuário criado ou lança um erro, se aplicável.
+ * 
+ * 2. getUserById(id):
+ *    - Descrição: Busca um usuário pelo seu ID.
+ *    - Parâmetros: Recebe o ID do usuário.
+ *    - Retorno: Retorna o usuário encontrado ou lança um erro, se aplicável.
+ * 
+ * 3. getAllUsers():
+ *    - Descrição: Retorna uma lista de todos os usuários.
+ *    - Parâmetros: Não recebe nenhum parâmetro.
+ *    - Retorno: Retorna uma lista de usuários ou lança um erro, se aplicável.
+ * 
+ * 4. updateUser(id, updateData):
+ *    - Descrição: Atualiza os detalhes de um usuário específico.
+ *    - Parâmetros: Recebe o ID do usuário e um objeto `updateData` contendo os dados a serem atualizados.
+ *    - Retorno: Retorna o usuário atualizado ou lança um erro, se aplicável.
+ * 
+ * 5. deleteUser(id):
+ *    - Descrição: Exclui um usuário pelo seu ID.
+ *    - Parâmetros: Recebe o ID do usuário.
+ *    - Retorno: Retorna uma confirmação da exclusão ou lança um erro, se aplicável.
+ * 
+ * Observações:
+ * - Este serviço depende do `UserRepository` para realizar operações relacionadas ao usuário no banco de dados.
+ * 
+ */
+
 const UserRepository = require('../repositories/userRepository');
 const userRepository = new UserRepository();
 
-// - Recebe as requisições HTTP de acordo com os controllers e métodos apropriados definidos em src/controllers/userController.js
-// - Chama os métodos apropriados do repository
-// - Retorna a resposta HTTP adequada
+// Classe de service para gerenciar as regras de negócio relacionadas à entidade de usuário
 class UserService {
 
     // - Recebe os dados do usuário
