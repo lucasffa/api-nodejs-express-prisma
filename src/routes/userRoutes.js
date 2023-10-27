@@ -60,5 +60,18 @@ router.get('/get/:id', UserValidations.getById(), validationErrorHandler, UserCo
 router.get('/get/', UserValidations.getAll(), validationErrorHandler, UserController.getAllUsers);
 router.put('/update/:id', UserValidations.update(), validationErrorHandler, UserController.updateUser);
 router.delete('/delete/:id', UserValidations.delete(), validationErrorHandler, UserController.deleteUser);
+router.patch('/toggle/useractivity/:id', UserValidations.toggleUserActivity(), validationErrorHandler, UserController.toggleUserActivity);
+
+// Middleware 404
+router.use((req, res, next) => {
+    const errorResponse = {
+        status: 'error',
+        errorCode: 404,
+        message: 'Rota não encontrada',
+        path: req.originalUrl
+    };
+    res.status(404).json(errorResponse);
+});
+
 
 module.exports = router;

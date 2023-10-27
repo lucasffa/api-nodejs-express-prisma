@@ -25,9 +25,15 @@ const { validationResult } = require('express-validator');
 const validationErrorHandler = (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
+        const errorCode = req.errorCode || 400; // Use 400 como padrão se o errorCode não estiver definido
+        return res.status(400).json({
+            message: errors.array()[0].msg,
+            errorCode: errorCode
+        });
     }
     next();
 };
+
+
 
 module.exports = validationErrorHandler;

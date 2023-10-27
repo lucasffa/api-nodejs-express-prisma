@@ -112,6 +112,15 @@ class UserService {
             throw error;
         }
     }
+
+    async toggleUserActivity(id) {
+        try {
+            const user = await userRepository.toggleActivity(id);
+            return user;
+        } catch (error) {
+            throw error;
+        }
+    }
 }
 
 module.exports = UserService;

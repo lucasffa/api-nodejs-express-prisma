@@ -1,20 +1,75 @@
 /**
- * userErrors.js
+ * src/errors/userErrors.js
+ * Data: 17/10/2023
  * Autor: http://github.com/lucasffa/
- * Descrição: Define erros personalizados para o gerenciamento de usuários.
- * Objetivo: Tratar erros de forma adequada e consistente em todo o projeto.
- * Dependências: Nenhuma.
+ * Descrição: Arquivo que define classes de erro personalizado relacionadas a operações de usuário, 
+ * fornecendo mensagens de erro mais significativas e códigos de status HTTP específicos.
  * 
- * Exemplo de Uso:
+ * Conteúdo:
  * 
- * try {
- *     throw new UserNotFoundError();
- * } catch (error) {
- *     if (error instanceof UserNotFoundError) {
- *         console.error(error.message);
- *     }
+ * 1. Enum ERROR_CODES:
+ *    - Define códigos numéricos para cada tipo de erro para facilitar a identificação e tratamento dos mesmos.
+ * 
+ * 2. Classes de Erro Personalizado:
+ * 
+ *    a. IdNotFoundError:
+ *       - Erro lançado quando um ID específico não é encontrado.
+ *       - Código padrão: 1001
+ *       - Status HTTP: 404 (Not Found)
+ * 
+ *    b. UserNotFoundError:
+ *       - Erro lançado quando um usuário não é encontrado.
+ *       - Código padrão: 1002
+ *       - Status HTTP: 404 (Not Found)
+ * 
+ *    c. UserCreateError:
+ *       - Erro lançado quando ocorre um problema na criação de um usuário.
+ *       - Código padrão: 1007
+ *       - Status HTTP: 404 (Not Found)
+ * 
+ *    d. UserCreateEmailError:
+ *       - Erro lançado quando se tenta criar um usuário com um e-mail que já está registrado.
+ *       - Código padrão: 1008
+ *       - Status HTTP: 404 (Not Found)
+ * 
+ *    e. UserUpdateError:
+ *       - Erro lançado quando ocorre um problema ao atualizar um usuário.
+ *       - Código padrão: 1003
+ *       - Status HTTP: 500 (Internal Server Error)
+ * 
+ *    f. UserDeleteError:
+ *       - Erro lançado quando ocorre um problema ao deletar um usuário.
+ *       - Código padrão: 1004
+ *       - Status HTTP: 500 (Internal Server Error)
+ * 
+ *    g. UserInfoRetrievalError:
+ *       - Erro lançado quando ocorre um problema ao buscar informações de um usuário específico.
+ *       - Código padrão: 1005
+ *       - Status HTTP: 500 (Internal Server Error)
+ * 
+ *    h. UsersInfoRetrievalError:
+ *       - Erro lançado quando ocorre um problema ao buscar informações de todos os usuários.
+ *       - Código padrão: 1006
+ *       - Status HTTP: 500 (Internal Server Error)
+ * 
+ * Como usar:
+ * - Importe as classes de erro personalizado necessárias em qualquer lugar do seu código.
+ * - Use-as para lançar erros personalizados em qualquer lugar do seu código.
+ * - Use-as para tratar erros personalizados em qualquer lugar do seu código.
+ * - Abaixo, exemplo em código:
+ * catch(error) {
+ *    if (error instanceof IdNotFoundError) {
+ *       // faça algo
+ *   } else if (error instanceof UserNotFoundError) {
+ *      // faça algo
+ *  } else if (error instanceof UserUpdateError) {
+ *     throw new UserUpdateError;
  * }
- *
+ * 
+ * Observações:
+ * - Cada classe de erro possui propriedades adicionais como `name`, `errorCode` e `statusCode` para melhor tratamento de erros.
+ * - Os códigos de erro e os códigos de status HTTP podem ser alterados conforme a necessidade do desenvolvedor.
+ * 
  */
 
 

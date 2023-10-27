@@ -23,6 +23,7 @@
  */
 
 const express = require('express');
+const path = require('path');
 const userRoutes = require('./src/routes/userRoutes');
 const errorHandlerMiddleware = require('./src/middlewares/errorHandler');
 
@@ -36,8 +37,14 @@ app.use('/users', userRoutes);
 app.get('/health', (req, res) => res.send('OK'));
 
 
+
+
+
 // Middleware de tratamento de erros no final, depois de todas as outras rotas e middlewares.
 app.use(errorHandlerMiddleware);
+
+
+
 
 
 // Iniciando o servidor

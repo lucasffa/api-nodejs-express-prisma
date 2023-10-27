@@ -145,10 +145,11 @@ class UserRepository {
         }
     }
 
+    
     // - Recebe o ID do usuário
     // - Chama o método apropriado do prisma para lidar com a deleção do usuário
-    // - Retorna o usuário deletado
-    async delete(id) {
+    // - Retorna o usuário deletado PERMANENTEMENTE
+    async permdelete(id) {
         try {
             // Verifica se o usuário existe antes de realizar toda a lógica abaixo
             await this.existingId(id);
@@ -170,19 +171,79 @@ class UserRepository {
         }
     }
 
+    // - Recebe o ID do usuário
+    // - Chama o método apropriado do prisma para lidar com a "deleção" lógica do usuário
+    // - Retorna o usuário com as novas alterações
+    async delete(id) {
+        try {
+            // Verifica se o usuário existe antes de realizar toda a lógica abaixo
+            await this.existingId(id);
+            
+            // Em vez de deletar o usuário, atualizamos os campos relevantes para indicar uma "deleção" lógica
+            const user = await prisma.user.update({
+                where: { id: parseInt(id) },
+                data: {
+                    isActive: false,
+                    isDeleted: true,
+                    deletedAt: new Date()
+                }
+            });
+
+            return user;
+
+        } catch (error) {
+            if(error instanceof IdNotFoundError){
+                console.log("error em delete de userRepository: ", error)
+                throw error;
+            }else{
+                throw new UserDeleteError;
+            }
+        }
+    }
+
+    // - Recebe o ID do usuário
+    // - Chama o método apropriado do prisma para alternar a atividade do usuário
+    // - Retorna o usuário com a atividade alterada
+    async toggleActivity(id) {
+        try {
+            // Verifica se o usuário existe antes de realizar toda a lógica abaixo
+            const existingUser = await this.existingId(id);
+            
+            // Alterna a atividade do usuário
+            const user = await prisma.user.update({
+                where: { id: parseInt(id) },
+                data: {
+                    isActive: !existingUser.isActive,
+                    isDeleted: false,
+                    lastActivitySince: new Date()
+                }
+            });
+
+            return user;
+
+        } catch (error) {
+            if(error instanceof IdNotFoundError){
+                console.log("error em toggleActivity de userRepository: ", error)
+                throw error;
+            } else {
+                throw new Error("Erro ao alternar a atividade do usuário.");
+            }
+        }
+    }
+
+
     async existingId(id) {
-        
         // Faz a verificação de existência do usuário no banco de dados utilizando o Prisma
         const existingUser = await prisma.user.findUnique({
             where: { id: parseInt(id) }
         });
           
         if (!existingUser) {
-            throw new IdNotFoundError
-        } else{
-            return true;
+            throw new IdNotFoundError();
         }
+        return existingUser; // Retorna o usuário encontrado
     }
+    
 }
 
 module.exports = UserRepository;

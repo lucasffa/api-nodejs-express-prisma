@@ -150,6 +150,24 @@ class UserController {
             }
         }
     }
+
+    async toggleUserActivity(req, res, next) {
+        try {
+            const { id } = req.params;
+            const user = await userService.toggleUserActivity(id);
+
+            return res.status(200).json({ message: 'User activity toggled successfully' });
+        } catch (error) {
+            
+            if (error.message === 'User not found') {
+                next(error);
+            } else {
+                
+                // Para erros desconhecidos, retorne um erro 500 (Internal Server Error)
+                next(error);
+            }
+        }
+    }
 }
 
 // Exportando o controller
