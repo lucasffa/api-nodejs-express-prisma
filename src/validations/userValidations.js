@@ -1,9 +1,12 @@
 /**
  * userValidations.js
  * 
- * Este módulo fornece um conjunto de classes de validação para operações relacionadas a usuários, utilizando a biblioteca `express-validator`. 
- * Cada método da classe `UserValidations` retorna um conjunto de validações que pode ser usado como middleware em rotas Express para garantir
- * que as entradas dos usuários atendam aos critérios especificados.
+ * Data: 27/10/2023
+ * Autor: http://github.com/lucasffa/
+ * Descrição:   Define as validações para as operações relacionadas à entidade de usuário.
+ *              Este módulo fornece um conjunto de classes de validação para operações relacionadas a usuários, utilizando a biblioteca `express-validator`. 
+ *              Cada método da classe `UserValidations` retorna um conjunto de validações que pode ser usado como middleware em rotas Express para garantir
+ *              que as entradas dos usuários atendam aos critérios especificados.
  * 
  * Métodos:
  * 
@@ -70,7 +73,8 @@ const ERROR_CODES = {
     ID_NOT_INTEGER_FOR_DELETE: 2031,
     ID_REQUIRED_FOR_DELETE: 2032,
     ID_NOT_INTEGER_FOR_GET: 2041,
-    ID_REQUIRED_FOR_GET: 2042
+    ID_REQUIRED_FOR_GET: 2042,
+    UUID_REQUIRED_FOR_GET: 2051
 };
 
 
@@ -135,12 +139,47 @@ class UserValidations {
         return [];
     }
 
+    // Validações para a atualização de um usuário
     static toggleUserActivity() {
         return [
             param('id')
                 .custom(validateWithErrorCode(value => !isNaN(parseInt(value)), ERROR_CODES.ID_NOT_INTEGER_FOR_UPDATE, 'ID do usuário deve ser inteiro')),
         ];
     }
+
+    
+    // Validações para a busca de um usuário
+    static getByUUID() {
+        return [
+            body('uuid')
+                .custom(validateWithErrorCode(value => value && value.trim() !== '', ERROR_CODES.UUID_REQUIRED_FOR_GET, 'UUID do usuário é obrigatório'))
+        ];
+    }
+
+    // Validações para a atualização de um usuário
+    static updateByUUID() {
+        return [
+            body('uuid')
+                .custom(validateWithErrorCode(value => value && value.trim() !== '', ERROR_CODES.UUID_REQUIRED_FOR_GET, 'UUID do usuário é obrigatório'))
+        ];
+    }
+    
+    // Validações para a atualização de um usuário
+    static toggleUserActivityByUUID() {
+        return [
+            body('uuid')
+                .custom(validateWithErrorCode(value => value && value.trim() !== '', ERROR_CODES.UUID_REQUIRED_FOR_GET, 'UUID do usuário é obrigatório'))
+        ];
+    }
+
+    // Validações para a atualização de um usuário
+    static deleteByUUID() {
+        return [
+            body('uuid')
+                .custom(validateWithErrorCode(value => value && value.trim() !== '', ERROR_CODES.UUID_REQUIRED_FOR_GET, 'UUID do usuário é obrigatório'))
+        ];
+    }
+    
 }
 
 module.exports = UserValidations;

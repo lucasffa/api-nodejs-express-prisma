@@ -83,7 +83,9 @@ const ERROR_CODES = {
     USER_INFO_RETRIEVAL_ERROR: 1005,
     USERS_INFO_RETRIEVAL_ERROR: 1006,
     USER_CREATE_ERROR: 1007,
-    USER_CREATE_EMAIL_ERROR: 1008
+    USER_CREATE_EMAIL_ERROR: 1008,
+    INCORRECT_PASSWORD_ERROR: 1009,
+    UUID_NOT_FOUND: 1010
 };
 
 // Classe de erro personalizado para quando um ID não for encontrado
@@ -166,6 +168,25 @@ class UsersInfoRetrievalError extends Error {
     }
 }
 
+// Classe de erro personalizado para quando uma senha dada estiver incorreta
+class UserIncorrectPasswordError extends Error {
+    constructor(message = 'Senha incorreta', errorCode = ERROR_CODES.INCORRECT_PASSWORD_ERROR) {
+        super(message);
+        this.name = 'IncorrectPasswordError';
+        this.statusCode = 400;  // Bad Request
+    }
+}
+
+// Classe de erro personalizado para quando um UUID não for encontrado
+class UUIDNotFoundError extends Error {
+    constructor(message = 'Não conseguiu encontrar UUID', errorCode = ERROR_CODES.UUID_NOT_FOUND) {
+        super(message);
+        this.name = 'UUIDNotFoundError';
+        this.errorCode = errorCode;
+        this.statusCode = 404;  // Not Found
+    }
+}
+
 // Exportando as classes de erro personalizado
 module.exports = {
     IdNotFoundError,
@@ -176,5 +197,7 @@ module.exports = {
     UsersInfoRetrievalError,
     UserCreateError,
     UserCreateEmailError,
+    UserIncorrectPasswordError,
+    UUIDNotFoundError,
     ERROR_CODES
 };

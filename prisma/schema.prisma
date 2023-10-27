@@ -9,9 +9,16 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum UserRole {
+  USER  // usuário comum
+  MOD   // moderador
+  ADMIN // administrador
+}
+
 model User {
     id       Int     @id @default(autoincrement())
-    uuid     String    @default(uuid()) @unique
+    uuid     String  @default(uuid()) @unique
+    role     UserRole @default(USER)  // Definido como "USER" por padrão
     name     String
     email    String  @unique
     password String
