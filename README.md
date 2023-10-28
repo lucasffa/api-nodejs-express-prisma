@@ -5,12 +5,14 @@ Este projeto representa uma API construída com o Node.js usando o framework Exp
 ## 📌 Sumário
 
 - [Sobre o Projeto](#sobre-o-projeto)
+- [Características Recentes](#características-recentes)
 - [Tecnologias Usadas](#tecnologias-usadas)
 - [Pré-requisitos](#pré-requisitos)
 - [Instalação](#instalação)
 - [Estrutura de Diretórios](#estrutura-de-diretórios)
 - [Uso](#uso)
 - [Endpoints](#endpoints)
+- [Segurança e Autenticação](#segurança-e-autenticação)
 - [Tratamento de Erros](#tratamento-de-erros)
 - [Validações](#validações)
 - [Contribuições](#contribuições)
@@ -35,11 +37,20 @@ O projeto é uma API RESTful designada para gerenciar usuários, oferecendo oper
 
 - **Rotas de Usuário**: As rotas relacionadas ao gerenciamento de usuários estão definidas em `userRoutes.js`.
 
+### Características Recentes
+
+- **Autenticação e Autorização**: Introduzimos middlewares de autenticação (`authMiddleware.js`) e verificação de role (`roleMiddleware.js`) para aprimorar a segurança na gestão dos usuários.
+
+- **Middleware UUID e ID**: Adicionamos um novo middleware (`uuidAndIdMiddleware.js`) que verifica o UUID e ID do usuário ao realizar determinadas ações, garantindo que a ação seja executada por usuários autorizados.
+
+- **Controle de Roles**: Estabelecemos um controle de roles que permite que somente usuários com determinados roles (MOD e ADMIN) tenham acesso a rotas sensíveis, como a de deleção de usuários.
+
 ## Tecnologias Usadas
 
 - Node.js
 - Express.js
 - Prisma
+- JWT (JSON Web Tokens) para autenticação
 - MySQL (como banco de dados escolhido para o Prisma)
 
 ## Pré-requisitos
@@ -82,7 +93,6 @@ npx prisma migrate dev
 │   ├───errors
 │   ├───logs
 │   ├───middlewares
-│   ├───public
 │   ├───repositories
 │   ├───routes
 │   ├───services
@@ -91,7 +101,6 @@ npx prisma migrate dev
 │   └───validations
 └── server.js
 ```
-
 
 ## Uso
 
@@ -103,13 +112,34 @@ node server.js
 
 O servidor será iniciado na porta definida no seu arquivo `.env` ou, caso não esteja definida, na porta 3000.
 
+Incorporando as rotas fornecidas ao README.md, a seção **Endpoints** ficaria assim:
+
+---
+
 ## Endpoints
 
-- **GET** `/users/get/:id`: Retorna um usuário específico baseado no ID.
-- **GET** `/users/get/`: Retorna todos os usuários.
-- **POST** `/users/create/`: Cria um novo usuário.
-- **PUT** `/users/update/:id`: Atualiza informações de um usuário.
-- **DELETE** `/users/delete/:id`: Deleta um usuário.
+### User Routes
+
+- **POST** `/create/`: Cria um novo usuário.
+- **GET** `/get/:id`: Retorna um usuário específico baseado no ID. (Acesso restrito a MOD e ADMIN)
+- **GET** `/get-uuid/`: Retorna um usuário específico pelo UUID. (Autenticação requerida)
+- **GET** `/get/`: Retorna todos os usuários. (Autenticação requerida)
+- **PUT** `/update/:id`: Atualiza informações de um usuário pelo ID. (Acesso restrito a MOD e ADMIN)
+- **PUT** `/update-uuid/`: Atualiza informações de um usuário pelo UUID. (Autenticação requerida e verificação de UUID/ID)
+- **DELETE** `/delete/:id`: Deleta um usuário pelo ID. (Acesso restrito a MOD e ADMIN)
+- **DELETE** `/delete-uuid/`: Deleta um usuário pelo UUID. (Acesso restrito a MOD e ADMIN)
+- **PATCH** `/toggle/useractivity/:id`: Altera o status de atividade de um usuário pelo ID. (Acesso restrito a MOD e ADMIN)
+- **PATCH** `/toggle-uuid/useractivity/`: Altera o status de atividade de um usuário pelo UUID. (Acesso restrito a MOD e ADMIN)
+
+### Login/Logout Routes
+
+- **POST** `/login`: Autentica um usuário e retorna um token JWT. (Protegido contra força bruta)
+
+## Segurança e Autenticação
+
+- **JWT Autenticação**: Utilizamos tokens JWT para autenticação de usuários e proteção de rotas.
+
+- **Middleware de Autenticação**: Assegura que apenas usuários autenticados e com a role correta tenham acesso a determinados endpoints.
 
 ## Tratamento de Erros
 
@@ -135,7 +165,7 @@ Distribuído sob a licença MIT. Veja `LICENSE` para mais informações.
 
 Lucas de Almeida
 - Github: [lucasffa](http://github.com/lucasffa/)
-- LinkedIn: [Link](#)
+- LinkedIn: [Link](https://www.linkedin.com/in/lucasffa/)
 
----
 
+The README.md has been updated to reflect the recent changes, notably the enhanced security mechanisms and user role verifications.
