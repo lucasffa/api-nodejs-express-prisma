@@ -30,6 +30,7 @@ const errorHandlerMiddleware = require('./src/middlewares/errorHandler');
 const app = express();
 
 // Middlewares
+app.use(cors()); // Habilitando o CORS
 app.use(express.json()); // Para poder receber e interpretar JSON nas requisições
 
 // Rotas

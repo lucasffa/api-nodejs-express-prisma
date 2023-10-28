@@ -94,29 +94,23 @@ const UserValidations = require('../validations/userValidations');
 const AuthValidations = require('../validations/authValidations');
 const validationErrorHandler = require('../middlewares/validationErrorHandler');
 const rateLimit = require("express-rate-limit");
-const ExpressBrute = require('express-brute');
-const MemcachedStore = require('express-brute-memcached');
 const AuthMiddleware = require('../middlewares/authMiddleware');
 const UUIDAndIdMiddleware = require('../middlewares/uuidAndIdMiddleware');
 const RoleMiddleware = require('../middlewares/roleMiddleware');
 
-let store = new ExpressBrute.MemoryStore(); // Armazena o estado na memória (não é recomendado para produção)
 
-// Para produção, considere usar MemcachedStore ou similar:
-// let store = new MemcachedStore(["127.0.0.1"]);
-
-const bruteforce = new ExpressBrute(store, {
-  freeRetries: 3, // Número de tentativas permitidas no `lifetime`
-  lifetime: 3600, // 1 hora (em segundos)
-  minWait: 15*60*1000, // 15 minutos
-  maxWait: 60*60*1000, // 1 hora
-  failCallback: function (req, res, next, nextValidRequestDate) {
-    res.status(429).json({ error: "Muitas tentativas. Tente novamente mais tarde." });
-  }
-});
 
 const router = express.Router();
 
+const loginLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hora
+  max: 3, // limite de 3 tentativas
+  message: "Muitas tentativas. Tente novamente mais tarde.",
+  headers: true, // adicionar cabeçalhos à resposta que indicam o estado do rate limiting (útil para debugging, mas pode ser desabilitado em produção)
+  handler: (req, res) => {
+    res.status(429).json({ error: "Muitas tentativas. Tente novamente mais tarde." });
+  }
+});
 
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
@@ -140,7 +134,7 @@ router.delete('/delete-uuid/', AuthMiddleware.verifyToken, RoleMiddleware.requir
 router.patch('/toggle/useractivity/:id', AuthMiddleware.verifyToken, RoleMiddleware.requireRole(['MOD', 'ADMIN']), UserValidations.toggleUserActivity(), validationErrorHandler, UserController.toggleUserActivity);
 router.patch('/toggle-uuid/useractivity/', AuthMiddleware.verifyToken, RoleMiddleware.requireRole(['MOD', 'ADMIN']), UserValidations.toggleUserActivityByUUID(), validationErrorHandler, UserController.toggleUserActivityByUUID);
     // Login/Logout routes
-    router.post('/login', bruteforce.prevent, AuthValidations.login(), validationErrorHandler, AuthController.login);
+    router.post('/login', loginLimiter, AuthValidations.login(), validationErrorHandler, AuthController.login);
 
 // Middleware 404
 router.use((req, res, next) => {

@@ -100,8 +100,10 @@ const {
 } = require('../errors/userErrors.js');  // ajuste o caminho conforme necessário
 
 const { PrismaClient } = require('@prisma/client');
+const NodeCache = require('node-cache');
 const prisma = new PrismaClient();
 const bcrypt = require('bcrypt');
+const myCache = new NodeCache();
 
 // Classe de repositório para gerenciar as operações relacionadas à entidade de usuário no banco de dados
 class UserRepository {
@@ -143,6 +145,14 @@ class UserRepository {
     // - Retorna o usuário encontrado
     async findById(id) {
         try {
+            
+            // Prepara o cache para armazenar o usuário
+            const cacheKey = `user-${id}`;
+            const cachedUser = myCache.get(cacheKey);
+            if (cachedUser) {
+                return cachedUser;
+            }
+
             // Faz a busca do usuário no banco de dados utilizando o Prisma
             const user = await prisma.user.findUnique({
                 where: { id: parseInt(id) }
@@ -152,6 +162,9 @@ class UserRepository {
             if (!user) {
                 throw new UserNotFoundError;
             }
+
+            // Armazenando o resultado em cache
+            myCache.set(cacheKey, user);
 
             return user;
 
@@ -172,7 +185,19 @@ class UserRepository {
     // - Retorna todos os usuários encontrados
     async findAll() {
         try {
+            
+            // Prepara o cache para armazenar os usuários
+            const cacheKey = 'users';
+            const cachedUsers = myCache.get(cacheKey);
+            if (cachedUsers) {
+                return cachedUsers;
+            }
+
             const users = await prisma.user.findMany();
+
+            // Armazenando o resultado em cache
+            myCache.set(cacheKey, users);
+
             return users;
         } catch (error) {
             throw new UsersInfoRetrievalError;
@@ -192,6 +217,12 @@ class UserRepository {
                 where: { id: parseInt(id) },
                 data: updateData
             });
+
+            
+            // Invalida o cache para esse usuário e o cache geral de todos os usuários
+            const cacheKey = `user-${id}`;
+            myCache.del(cacheKey);
+            myCache.del('users');
 
             return user;
 
@@ -217,6 +248,11 @@ class UserRepository {
                 where: { uuid: uuid },
                 data: updateData
             });
+
+            // Invalida o cache para esse usuário e o cache geral de todos os usuários
+            const cacheKey = `user-${uuid}`;
+            myCache.del(cacheKey);
+            myCache.del('users');
 
             return user;
 
@@ -273,6 +309,11 @@ class UserRepository {
                 }
             });
 
+            // Invalida o cache para esse usuário e o cache geral de todos os usuários
+            const cacheKey = `user-${id}`;
+            myCache.del(cacheKey);
+            myCache.del('users');
+
             return user;
 
         } catch (error) {
@@ -303,6 +344,11 @@ class UserRepository {
                 }
             });
 
+            // Invalida o cache para esse usuário e o cache geral de todos os usuários
+            const cacheKey = `user-${uuid}`;
+            myCache.del(cacheKey);
+            myCache.del('users');
+
             return user;
 
         } catch (error) {
@@ -332,6 +378,11 @@ class UserRepository {
                     lastActivitySince: new Date()
                 }
             });
+
+            // Invalida o cache para esse usuário e o cache geral de todos os usuários
+            const cacheKey = `user-${id}`;
+            myCache.del(cacheKey);
+            myCache.del('users');
 
             return user;
 
@@ -365,6 +416,11 @@ class UserRepository {
                 }
             });
 
+            // Invalida o cache para esse usuário e o cache geral de todos os usuários
+            const cacheKey = `user-${uuid}`;
+            myCache.del(cacheKey);
+            myCache.del('users');
+
             return user;
 
         } catch (error) {
@@ -390,6 +446,14 @@ class UserRepository {
     // - Retorna o usuário encontrado
     async findByUUID(uuid) {
         try {
+
+            // Prepara o cache para armazenar o usuário
+            const cacheKey = `user-${uuid}`;
+            const cachedUser = myCache.get(cacheKey);
+            if (cachedUser) {
+                return cachedUser;
+            }
+
             // Faz a busca do usuário no banco de dados utilizando o Prisma pelo UUID fornecido
             const user = await prisma.user.findUnique({
                 where: { uuid: uuid }
@@ -399,6 +463,9 @@ class UserRepository {
             if (!user) {
                 throw new UserNotFoundError();
             }
+
+            // Armazenando o resultado em cache
+            myCache.set(cacheKey, user);
 
             return user;
 
@@ -415,7 +482,13 @@ class UserRepository {
 
 
     async existingId(id) {
-        // Faz a verificação de existência do usuário no banco de dados utilizando o Prisma
+        const cacheKey = `existingId-${id}`;
+        const cachedUser = myCache.get(cacheKey);
+
+        if (cachedUser) {
+            return cachedUser;
+        }
+
         const existingUser = await prisma.user.findUnique({
             where: { id: parseInt(id) }
         });
@@ -423,20 +496,34 @@ class UserRepository {
         if (!existingUser) {
             throw new IdNotFoundError();
         }
-        return existingUser; // Retorna o usuário encontrado
+
+        // Armazenando o resultado em cache
+        myCache.set(cacheKey, existingUser);
+
+        return existingUser;
     }
 
     async existingUUID(uuid) {
+        const cacheKey = `existingUUID-${uuid}`;
+        const cachedUser = myCache.get(cacheKey);
+
+        if (cachedUser) {
+            return cachedUser;
+        }
+
         const user = await prisma.user.findUnique({ 
             where: { uuid: uuid } 
         });
+
         if (!user) {
             throw new UUIDNotFoundError();
         }
-        return user; // Retorna o usuário encontrado
+
+        // Armazenando o resultado em cache
+        myCache.set(cacheKey, user);
+
+        return user;
     }
-    
-    
 }
 
 module.exports = UserRepository;

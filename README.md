@@ -52,6 +52,12 @@ O projeto é uma API RESTful designada para gerenciar usuários, oferecendo oper
 - Prisma
 - JWT (JSON Web Tokens) para autenticação
 - MySQL (como banco de dados escolhido para o Prisma)
+- `node-cache` para implementação de mecanismos de cache.
+- `express-rate-limit` para proteção contra ataques de força bruta.
+- `bcrypt` para hash e verificação de senhas.
+- `cors` para habilitar CORS na aplicação.
+- `dotenv` para gerenciamento de variáveis de ambiente.
+
 
 ## Pré-requisitos
 
@@ -133,7 +139,7 @@ Incorporando as rotas fornecidas ao README.md, a seção **Endpoints** ficaria a
 
 ### Login/Logout Routes
 
-- **POST** `/login`: Autentica um usuário e retorna um token JWT. (Protegido contra força bruta)
+- **POST** `/login`: Autentica um usuário e retorna um token JWT. (Protegido contra força bruta utilizando express-rate-limit)
 
 ## Segurança e Autenticação
 
