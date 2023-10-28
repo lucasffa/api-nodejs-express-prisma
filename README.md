@@ -165,7 +165,4 @@ Distribuído sob a licença MIT. Veja `LICENSE` para mais informações.
 
 Lucas de Almeida
 - Github: [lucasffa](http://github.com/lucasffa/)
-- LinkedIn: [Link](https://www.linkedin.com/in/lucasffa/)
-
-
-The README.md has been updated to reflect the recent changes, notably the enhanced security mechanisms and user role verifications.
+- LinkedIn: [Lucas de Almeida](https://www.linkedin.com/in/lucasffa/)
