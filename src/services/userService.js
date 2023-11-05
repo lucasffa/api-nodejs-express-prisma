@@ -77,14 +77,9 @@ class UserService {
     // - Retorna o usuário criado
     async createUser(userData) {
         try {
-            console.log("userData em try de createUser em userService: ", userData)
             const user = await userRepository.create(userData);
             return user;
         } catch (error) {
-            if (error.message === 'Este e-mail já está registrado') {
-                // Aqui você pode criar um objeto de erro personalizado, se quiser
-                throw new Error('Este e-mail já está em uso. Por favor, escolha outro.');
-            }
             // Para outros erros, apenas lance-os novamente
             throw error;
         }
@@ -153,7 +148,6 @@ class UserService {
     // - Chama o método apropriado do repository para encontrar o usuário
     // - Retorna o usuário deletado
     async getByUUID(uuid) {
-        console.log("uuid em getByUUID em userService: ", uuid)
         try {
             const user = await userRepository.findByUUID(uuid);
             const { id, password, ...userWithoutSensitiveInfo } = user;
@@ -204,7 +198,6 @@ class UserService {
     // - Chama o método apropriado do repository para deletar o usuário
     // - Retorna o usuário deletado
     async toggleUserActivityByUUID(uuid) {
-        console.log("uuid em toggleUserActivityByUUID em userService: ", uuid)
         try {
             const user = await userRepository.toggleActivityByUUID(uuid);
             return user;

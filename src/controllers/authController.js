@@ -32,16 +32,32 @@
  */
 
 const AuthService = require('../services/authService');
-
 const authService = new AuthService();
+const logger = require('../logs/logger.js');
 
 class AuthController {
     async login(req, res) {
         try {
+            logger.log({
+                level: 'debug',
+                msg: 'Iniciando a autenticação de um usuário.',
+                reqId: req.rId
+            });
             const { email, password } = req.body;
             const login = await authService.login(email, password);
+            logger.log({
+                level: 'info',
+                msg: 'Usuário autenticado com sucesso. UUID do usuário: ' + login.uuid + '.',
+                reqId: req.rId
+            });
             res.json({ login });
         } catch (error) {
+            logger.log({
+                level: 'error',
+                msg: error.message,
+                errC: error.errorCode,
+                reqId: req.rId
+            });
             res.status(error.statusCode || 400).json({ message: error.message, errorCode: error.errorCode });
         }
     }

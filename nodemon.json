@@ -1,0 +1,6 @@
+{
+    "ignore": ["tree-structured-logs.json"],
+    "watch": ["src/"],
+    "ext": "js,json"
+  }
+  

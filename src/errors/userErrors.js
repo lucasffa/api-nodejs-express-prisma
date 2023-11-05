@@ -110,11 +110,12 @@ class UserCreateError extends Error {
 
 // Classe de erro personalizado para quando um email de usuário não for encontrado
 class UserCreateEmailError extends Error {
-    constructor(message = 'Este e-mail já está registrado', errorCode = ERROR_CODES.USER_CREATE_EMAIL_ERROR) {
-        super(message);
-        this.name = 'IdNotFoundError';
+    constructor(email, message = 'Este e-mail já está registrado', errorCode = ERROR_CODES.USER_CREATE_EMAIL_ERROR) {
+        super(`${message}: ${email}`);
+        this.name = 'UserCreateEmailError';
         this.errorCode = errorCode;
-        this.statusCode = 404;  // Not Found
+        this.statusCode = 409;  // Not Found
+        this.email = email;
     }
 }
 

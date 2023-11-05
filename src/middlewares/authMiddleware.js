@@ -14,12 +14,18 @@
  * @module authMiddleware.js
  */
 const jwt = require('jsonwebtoken');
+const logger = require('../logs/logger');
 
 class AuthMiddleware {
     verifyToken(req, res, next) {
         const authHeader = req.headers['authorization'];
 
         if (!authHeader) {
+            logger.log({
+                level: 'error',
+                msg: `Não logado.`,
+                reqId: req.rId
+            })
             return res.status(401).json({ message: 'Não logado.' });
         }
 
@@ -27,17 +33,32 @@ class AuthMiddleware {
         const parts = authHeader.split(' ');
 
         if (parts.length !== 2) {
+            logger.log({
+                level: 'error',
+                msg: `Erro no login.`,
+                reqId: req.rId
+            })
             return res.status(401).json({ message: 'Erro no login.' });
         }
 
         const [scheme, token] = parts;
 
         if (!/^Bearer$/i.test(scheme)) {
+            logger.log({
+                level: 'error',
+                msg: `Login mal feito.`,
+                reqId: req.rId
+            })
             return res.status(401).json({ message: 'Login mal feito.' });
         }
 
         jwt.verify(token, process.env.JWT_SECRET, (error, decoded) => {
             if (error) {
+                logger.log({
+                    level: 'error',
+                    msg: `Login inválido.`,
+                    reqId: req.rId
+                })
                 return res.status(401).json({ message: 'Login inválido.' });
             }
 
@@ -59,7 +80,7 @@ class AuthMiddleware {
             req.userData = {
                 uuid: decoded.userUuid,
                 id: decoded.userId,
-                role: decoded.role
+                roleId: decoded.roleId
             };
 
             return next();

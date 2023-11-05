@@ -22,7 +22,9 @@
  *
  */
 
+const cors = require('cors');
 const express = require('express');
+const helmet = require('helmet');
 const path = require('path');
 const userRoutes = require('./src/routes/userRoutes');
 const errorHandlerMiddleware = require('./src/middlewares/errorHandler');
@@ -30,6 +32,7 @@ const errorHandlerMiddleware = require('./src/middlewares/errorHandler');
 const app = express();
 
 // Middlewares
+app.use(helmet());
 app.use(cors()); // Habilitando o CORS
 app.use(express.json()); // Para poder receber e interpretar JSON nas requisições
 

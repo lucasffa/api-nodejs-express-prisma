@@ -20,9 +20,8 @@
 class RoleMiddleware {
     requireRole(requiredRoles) {
         return (req, res, next) => {
-            const userRole = req.userData.role;
-
-            if (requiredRoles.includes(userRole)) {
+            const userRoleId = req.userData.roleId;
+            if (requiredRoles.includes(userRoleId)) {
                 return next();
             } else {
                 return res.status(403).json({ message: "Acesso não autorizado." });

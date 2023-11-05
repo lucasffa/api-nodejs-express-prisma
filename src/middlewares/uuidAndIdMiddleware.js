@@ -13,20 +13,30 @@
  * 
  * @module uuidAndIdMiddleware.js
  */
-
+const logger = require('../logs/logger');
 class UUIDAndIdMiddleware {
     verifyUUIDandID(req, res, next) {
         
         // Permitir MOD e ADMIN independente do UUID/ID
-        if (['MOD', 'ADMIN'].includes(req.userData.role)) {
+        if ([1, 2].includes(req.userData.roleId)) {
             return next();
         }
 
         if (req.body.uuid && req.body.uuid !== req.userData.uuid) {
+            logger.log({
+                level: 'warn',
+                msg: `Tentativa de acesso não autorizado ao UUID ${req.body.uuid} por ID: ${req.userData.id}`,
+                reqId: req.rId
+            })
             return res.status(403).json({ message: "Ação não permitida para este UUID" });
         }
 
         if (req.params.id && parseInt(req.params.id) !== req.userData.id) {
+            logger.log({
+                level: 'warn',
+                msg: `Tentativa de acesso não autorizado ao ID ${req.params.id} por ID: ${req.userData.id}`,
+                reqId: req.rId
+            })
             return res.status(403).json({ message: "Ação não permitida para este ID" });
         }
 

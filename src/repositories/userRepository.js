@@ -122,6 +122,9 @@ class UserRepository {
             // Substitui a senha fornecida pela versão hasheada antes de salvar no banco de dados
             userData.password = hashedPassword;
 
+            // Verifica se a role foi definida, caso contrário, define como 'USER' (ID 3)
+            userData.roleId = userData.roleId || 3;
+            
             // Cria o usuário no banco de dados utilizando o Prisma
             const user = await prisma.user.create({ data: userData });
 
@@ -131,10 +134,10 @@ class UserRepository {
             return userWithoutSensitiveInfo;
 
         } catch (error) {
-            
+            console.log("O erro em userReposiory.js é: ", error)
             // Se o erro for de e-mail duplicado, lance um erro personalizado
-            if (error.code === 'P2002' && error.meta?.target?.includes('email')) {
-                throw new UserCreateEmailError;
+            if (error.code === 'P2002' || error.meta?.target?.includes('email')) {
+                throw new UserCreateEmailError(userData.email);
             }
             throw new UserCreateError;
         }
@@ -283,7 +286,6 @@ class UserRepository {
 
         } catch (error) {
             if(error instanceof IdNotFoundError){
-                console.log("error em delete de userRepository: ", error)
                 throw error;
             }else{
                 throw new UserDeleteError;
@@ -318,7 +320,6 @@ class UserRepository {
 
         } catch (error) {
             if(error instanceof IdNotFoundError){
-                console.log("error em delete de userRepository: ", error)
                 throw new UserNotFoundError;
             }else{
                 throw new UserDeleteError;
@@ -353,7 +354,6 @@ class UserRepository {
 
         } catch (error) {
             if(error instanceof IdNotFoundError){
-                console.log("error em delete de userRepository: ", error)
                 throw new UserNotFoundError;
             }else{
                 throw new UserDeleteError;
@@ -366,9 +366,17 @@ class UserRepository {
     // - Retorna o usuário com a atividade alterada
     async toggleActivity(id) {
         try {
+            
+            // Invalida o cache para esse usuário e o cache geral de todos os usuários
+            const cacheKey = `user-${id}`;
+            myCache.del(cacheKey);
+            myCache.del('users');
+            const cacheKey2 = `existingId-${id}`;
+            myCache.del(cacheKey2);
+
             // Verifica se o usuário existe antes de realizar toda a lógica abaixo
             const existingUser = await this.existingId(id);
-            
+
             // Alterna a atividade do usuário
             const user = await prisma.user.update({
                 where: { id: parseInt(id) },
@@ -379,16 +387,11 @@ class UserRepository {
                 }
             });
 
-            // Invalida o cache para esse usuário e o cache geral de todos os usuários
-            const cacheKey = `user-${id}`;
-            myCache.del(cacheKey);
-            myCache.del('users');
 
             return user;
 
         } catch (error) {
             if(error instanceof IdNotFoundError){
-                console.log("error em toggleActivity de userRepository: ", error)
                 throw error;
             } else {
                 throw new Error("Erro ao alternar a atividade do usuário.");
@@ -400,8 +403,14 @@ class UserRepository {
     // - Chama o método apropriado do prisma para alternar a atividade do usuário
     // - Retorna o usuário com a atividade alterada
     async toggleActivityByUUID(uuid) {
-        console.log("uuid em toggleActivityByUUID em userRepository: ", uuid)
         try {
+
+            // Invalida o cache para esse usuário e o cache geral de todos os usuários
+            const cacheKey = `user-${uuid}`;
+            myCache.del(cacheKey);
+            myCache.del('users');
+            const cacheKey2 = `existingUUID-${uuid}`;
+            myCache.del(cacheKey2);
             
             // Verifica se o usuário existe antes de realizar toda a lógica abaixo
             const existingUser = await this.existingUUID(uuid);
@@ -416,19 +425,14 @@ class UserRepository {
                 }
             });
 
-            // Invalida o cache para esse usuário e o cache geral de todos os usuários
-            const cacheKey = `user-${uuid}`;
-            myCache.del(cacheKey);
-            myCache.del('users');
 
             return user;
 
         } catch (error) {
             if(error instanceof UUIDNotFoundError){
-                console.log("error em toggleActivity de userRepository: ", error)
                 throw error;
             } else {
-                console.log("error em toggleActivity de userRepository: ", error)
+                console.log("O erro em userRepository.js é: ", error)
                 throw new Error("Erro ao alternar a atividade do usuário.");
             }
         }

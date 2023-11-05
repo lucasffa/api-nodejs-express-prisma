@@ -35,7 +35,7 @@ const UserRepository = require('../repositories/userRepository');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
-
+const logger = require('../logs/logger.js');
 
 const userRepository = new UserRepository();
 const {
@@ -58,14 +58,12 @@ class AuthService {
             if (!user) {
                 throw new UserNotFoundError();
             }
-            console.log("Em AuthService, em login, debugando user: ", user);
             const isPasswordValid = await bcrypt.compare(password, user.password);
             if (!isPasswordValid) {
                 throw new UserIncorrectPasswordError();
             }
             
-            console.log("Em AuthService, em login, debugando user.role: ", user.role);
-            const token = jwt.sign({ userUuid: user.uuid, userId: user.id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
+            const token = jwt.sign({ userUuid: user.uuid, userId: user.id, roleId: user.roleId }, process.env.JWT_SECRET, { expiresIn: '1h' });
     
             return {
                 token: token,   // Token JWT

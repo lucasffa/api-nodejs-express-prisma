@@ -97,44 +97,45 @@ const rateLimit = require("express-rate-limit");
 const AuthMiddleware = require('../middlewares/authMiddleware');
 const UUIDAndIdMiddleware = require('../middlewares/uuidAndIdMiddleware');
 const RoleMiddleware = require('../middlewares/roleMiddleware');
-
-
+const logger = require('../logs/logger');
+const { v4: uuidv4 } = require('uuid');
+const uuidToBase62 = require('../utils/functions').uuidToBase62;
+const { RequestLogger, ResponseLogger} = require('../middlewares/logMiddleware');
+const { LoginLimiter, ApiLimiter } = require('../middlewares/limiterMiddleware');
 
 const router = express.Router();
 
-const loginLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 hora
-  max: 3, // limite de 3 tentativas
-  message: "Muitas tentativas. Tente novamente mais tarde.",
-  headers: true, // adicionar cabeçalhos à resposta que indicam o estado do rate limiting (útil para debugging, mas pode ser desabilitado em produção)
-  handler: (req, res) => {
-    res.status(429).json({ error: "Muitas tentativas. Tente novamente mais tarde." });
-  }
-});
 
-const apiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 100, // Limite de 100 requisições
-  message: "Muitas requisições deste IP, por favor tente novamente após 15 minutos."
-});
+
+
 
 // Aplique para todas as rotas
-router.use(apiLimiter);
+router.use((req, res, next) => {
+    
+  const originalUuid = uuidv4();
+  const shortenedUuid = uuidToBase62(originalUuid);
+  req.rId = shortenedUuid;
 
+  next();
+});
+router.use((new ApiLimiter).middleware());
+
+router.use((new RequestLogger()).middleware());
+router.use((new ResponseLogger()).middleware());
 
 // User routes
 router.post('/create/', UserValidations.create(), validationErrorHandler, UserController.createUser);
-router.get('/get/:id', AuthMiddleware.verifyToken, RoleMiddleware.requireRole(['MOD', 'ADMIN']), UserValidations.getById(), validationErrorHandler, UserController.getUserById);
+router.get('/get/:id', AuthMiddleware.verifyToken, RoleMiddleware.requireRole([1, 2]), UserValidations.getById(), validationErrorHandler, UserController.getUserById);
 router.get('/get-uuid/', AuthMiddleware.verifyToken, UserValidations.getByUUID(), validationErrorHandler, UserController.getUserByUUID);
 router.get('/get/', AuthMiddleware.verifyToken, UserValidations.getAll(), validationErrorHandler, UserController.getAllUsers);
-router.put('/update/:id', AuthMiddleware.verifyToken, RoleMiddleware.requireRole(['MOD', 'ADMIN']), UserValidations.update(), validationErrorHandler, UserController.updateUser);
+router.put('/update/:id', AuthMiddleware.verifyToken, RoleMiddleware.requireRole([1, 2]), UserValidations.update(), validationErrorHandler, UserController.updateUser);
 router.put('/update-uuid/', AuthMiddleware.verifyToken, UUIDAndIdMiddleware.verifyUUIDandID, UserValidations.updateByUUID(), validationErrorHandler, UserController.updateUserByUUID);
-router.delete('/delete/:id', AuthMiddleware.verifyToken, RoleMiddleware.requireRole(['MOD', 'ADMIN']), UserValidations.delete(), validationErrorHandler, UserController.deleteUser);
-router.delete('/delete-uuid/', AuthMiddleware.verifyToken, RoleMiddleware.requireRole(['MOD', 'ADMIN']), UserValidations.deleteByUUID(), validationErrorHandler, UserController.deleteUserByUUID);
-router.patch('/toggle/useractivity/:id', AuthMiddleware.verifyToken, RoleMiddleware.requireRole(['MOD', 'ADMIN']), UserValidations.toggleUserActivity(), validationErrorHandler, UserController.toggleUserActivity);
-router.patch('/toggle-uuid/useractivity/', AuthMiddleware.verifyToken, RoleMiddleware.requireRole(['MOD', 'ADMIN']), UserValidations.toggleUserActivityByUUID(), validationErrorHandler, UserController.toggleUserActivityByUUID);
+router.delete('/delete/:id', AuthMiddleware.verifyToken, RoleMiddleware.requireRole([1, 2]), UserValidations.delete(), validationErrorHandler, UserController.deleteUser);
+router.delete('/delete-uuid/', AuthMiddleware.verifyToken, RoleMiddleware.requireRole([1, 2]), UserValidations.deleteByUUID(), validationErrorHandler, UserController.deleteUserByUUID);
+router.patch('/toggle/useractivity/:id', AuthMiddleware.verifyToken, RoleMiddleware.requireRole([1, 2]), UserValidations.toggleUserActivity(), validationErrorHandler, UserController.toggleUserActivity);
+router.patch('/toggle-uuid/useractivity/', AuthMiddleware.verifyToken, RoleMiddleware.requireRole([1, 2]), UserValidations.toggleUserActivityByUUID(), validationErrorHandler, UserController.toggleUserActivityByUUID);
     // Login/Logout routes
-    router.post('/login', loginLimiter, AuthValidations.login(), validationErrorHandler, AuthController.login);
+    router.post('/login', (new LoginLimiter).middleware(), AuthValidations.login(), validationErrorHandler, AuthController.login);
 
 // Middleware 404
 router.use((req, res, next) => {
