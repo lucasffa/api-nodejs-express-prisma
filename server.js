@@ -28,8 +28,42 @@ const helmet = require('helmet');
 const path = require('path');
 const userRoutes = require('./src/routes/userRoutes');
 const errorHandlerMiddleware = require('./src/middlewares/errorHandler');
+const TokenBlacklist = require('./src/models/tokenBlacklist.js'); // Importar a classe do modelo
+
+const { MongoClient, ServerApiVersion } = require('mongodb');
+
+const credentials = 'C:/codando/node/api-nodejs-express-prisma/certificates/mongodb.pem'; // Substitua pelo caminho correto do seu certificado .pem
 
 const app = express();
+
+
+const client = new MongoClient('mongodb+srv://cluster0.rvd6gcq.mongodb.net/?authSource=%24external&authMechanism=MONGODB-X509&retryWrites=true&w=majority', {
+  tlsCertificateKeyFile: credentials,
+  serverApi: ServerApiVersion.v1
+});
+
+
+
+// Conectar ao MongoDB
+async function connectDB() {
+    try {
+      await client.connect();
+      console.log("Connected to MongoDB");
+      const database = client.db("mymongodb"); // Substitua pelo nome do seu banco de dados
+      const collection = database.collection("expiredtokens"); // Substitua pelo nome da sua coleção
+  
+      // Armazenar a coleção na instância do Express para uso futuro
+      app.set('tokenBlacklist', new TokenBlacklist(collection));
+    } catch (error) {
+      console.error("Failed to connect to MongoDB", error);
+      process.exit(1);
+    }
+  }
+  
+  connectDB().catch(console.error);
+  
+  
+
 
 // Middlewares
 app.use(helmet());

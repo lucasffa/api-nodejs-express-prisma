@@ -94,7 +94,8 @@ const UserValidations = require('../validations/userValidations');
 const AuthValidations = require('../validations/authValidations');
 const validationErrorHandler = require('../middlewares/validationErrorHandler');
 const rateLimit = require("express-rate-limit");
-const AuthMiddleware = require('../middlewares/authMiddleware');
+const tokenBlacklist = require('../models/tokenBlacklist');
+const AuthMiddleware = require('../middlewares/authMiddleware')(tokenBlacklist);
 const UUIDAndIdMiddleware = require('../middlewares/uuidAndIdMiddleware');
 const RoleMiddleware = require('../middlewares/roleMiddleware');
 const logger = require('../logs/logger');
@@ -136,6 +137,7 @@ router.patch('/toggle/useractivity/:id', AuthMiddleware.verifyToken, RoleMiddlew
 router.patch('/toggle-uuid/useractivity/', AuthMiddleware.verifyToken, RoleMiddleware.requireRole([1, 2]), UserValidations.toggleUserActivityByUUID(), validationErrorHandler, UserController.toggleUserActivityByUUID);
     // Login/Logout routes
     router.post('/login', (new LoginLimiter).middleware(), AuthValidations.login(), validationErrorHandler, AuthController.login);
+    router.post('/logout', (new LoginLimiter).middleware(), AuthMiddleware.verifyToken, AuthController.logout);
 
 // Middleware 404
 router.use((req, res, next) => {

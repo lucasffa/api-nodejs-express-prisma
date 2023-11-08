@@ -16,8 +16,22 @@
 const jwt = require('jsonwebtoken');
 const logger = require('../logs/logger');
 
+const NodeCache = require('node-cache');
+const tokenBlacklistCache = new NodeCache({ stdTTL: 600, checkperiod: 120 }); // Cache com TTL de 10 minutos
+const {
+    HeaderNotFoundError,
+    MalformedLoginError,
+    TokenBlacklistedError,
+    InvalidTokenError
+} = require('../errors/authErrors.js');  // ajuste o caminho conforme necessário
+
+
 class AuthMiddleware {
-    verifyToken(req, res, next) {
+    constructor(tokenBlacklist) {
+        this.tokenBlacklist = tokenBlacklist;
+    }
+
+    async verifyToken(req, res, next) {
         const authHeader = req.headers['authorization'];
 
         if (!authHeader) {
@@ -26,7 +40,9 @@ class AuthMiddleware {
                 msg: `Não logado.`,
                 reqId: req.rId
             })
-            return res.status(401).json({ message: 'Não logado.' });
+            // Se não houver um cabeçalho de autorização, o usuário não está logado
+            return next(new HeaderNotFoundError());
+
         }
 
         // Verificar se o formato do header é "Bearer [TOKEN]"
@@ -38,7 +54,8 @@ class AuthMiddleware {
                 msg: `Erro no login.`,
                 reqId: req.rId
             })
-            return res.status(401).json({ message: 'Erro no login.' });
+            // Se não houver um cabeçalho de autorização, há um erro no login
+            return next(new HeaderNotFoundError());
         }
 
         const [scheme, token] = parts;
@@ -49,9 +66,31 @@ class AuthMiddleware {
                 msg: `Login mal feito.`,
                 reqId: req.rId
             })
-            return res.status(401).json({ message: 'Login mal feito.' });
+            // Se Bearer não estiver presente, o login foi mal feito
+            return next(new MalformedLoginError());
         }
 
+        // Acessar a blacklist de tokens
+        const tokenBlacklist = req.app.get('tokenBlacklist');
+
+        // Verificar se o token está na blacklist
+        
+        const cachedResult = tokenBlacklistCache.get(token);
+        if (cachedResult !== undefined) {
+            if (cachedResult) {
+                // Se o token estiver na blacklist, o usuário não será autorizado
+                return next(new TokenBlacklistedError());
+            }
+        } else {
+            const isBlacklisted = await tokenBlacklist.isTokenBlacklisted(token);
+            console.log('isBlacklisted', isBlacklisted)
+            tokenBlacklistCache.set(token, isBlacklisted);
+            if (isBlacklisted) {
+                // Se o token estiver na blacklist, o usuário não será autorizado
+                return next(new TokenBlacklistedError());
+            }
+        }
+        
         jwt.verify(token, process.env.JWT_SECRET, (error, decoded) => {
             if (error) {
                 logger.log({
@@ -59,22 +98,14 @@ class AuthMiddleware {
                     msg: `Login inválido.`,
                     reqId: req.rId
                 })
-                return res.status(401).json({ message: 'Login inválido.' });
+                // Se o token não for válido, o usuário não será autorizado
+                return next(new InvalidTokenError());
             }
 
             // Se necessário, você pode adicionar o ID do usuário ao objeto req para uso posterior
             req.userId = decoded.userId;
             
 
-            /*
-            // Adicionando as verificações para userUuid e role
-            if (req.body.uuid && req.body.uuid !== decoded.userUuid) {
-                return res.status(403).json({ message: "Ação não permitida para este UUID" });
-            }
-
-            if (req.params.id && parseInt(req.params.id) !== decoded.userId) {
-                return res.status(403).json({ message: "Ação não permitida para este ID" });
-            }*/
 
             // Anexando os dados do usuário ao objeto req para uso posterior
             req.userData = {
@@ -88,4 +119,6 @@ class AuthMiddleware {
     }
 }
 
-module.exports = new AuthMiddleware();
+
+module.exports = (tokenBlacklist) => new AuthMiddleware(tokenBlacklist);
+module.exports.tokenBlacklistCache = tokenBlacklistCache;

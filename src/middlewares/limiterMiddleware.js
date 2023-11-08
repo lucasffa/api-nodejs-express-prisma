@@ -1,6 +1,3 @@
-const rateLimit = require('express-rate-limit');
-const { LogMiddleware } = require('./logMiddleware'); // Assuming this is the logging middleware
-
 /**
  * limiterMiddleware.js
  *
@@ -25,18 +22,26 @@ const { LogMiddleware } = require('./logMiddleware'); // Assuming this is the lo
  * @module limiterMiddleware
  */
 
+const rateLimit = require('express-rate-limit');
+const { LogMiddleware } = require('./logMiddleware'); // Assuming this is the logging middleware
+const {
+  TooManyRequestsError
+} = require('../errors/authErrors.js');  // ajuste o caminho conforme necessário
+
+
+
 class LimiterMiddleware {
   constructor(options) {
-    this.limiter = rateLimit({
-      ...options,
-      handler: (req, res, /* next */) => {
-        res.status(429).json({ error: options.message });
-      }
-    });
+      this.limiter = rateLimit({
+          ...options,
+          handler: (req, res, next) => {
+              next(new TooManyRequestsError()); // Passando o erro para o próximo middleware
+          }
+      });
   }
 
   middleware() {
-    return this.limiter;
+      return this.limiter;
   }
 }
 
@@ -45,7 +50,7 @@ class LoginLimiter extends LimiterMiddleware {
     super({
       windowMs: 60 * 60 * 1000, // 1 hour
       max: 3, // Limit each IP to 3 attempts per `window` (here, per hour)
-      message: "Too many login attempts. Please try again later.",
+      //message: "Too many login attempts. Please try again later.",
       headers: true
     });
   }
@@ -56,7 +61,7 @@ class ApiLimiter extends LimiterMiddleware {
     super({
       windowMs: 15 * 60 * 1000, // 15 minutes
       max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
-      message: "Too many requests from this IP, please try again after 15 minutes."
+      //message: "Too many requests from this IP, please try again after 15 minutes."
     });
   }
 }

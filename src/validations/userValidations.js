@@ -59,22 +59,83 @@ const { body, param, validationResult } = require('express-validator');
 
 
 // Definindo os códigos de erro como um Enum
-const ERROR_CODES = {
-    NAME_REQUIRED: 2011,
-    EMAIL_INVALID: 2012,
-    EMAIL_REQUIRED: 2013,
-    PASSWORD_LENGTH: 2014,
-    ID_NOT_INTEGER_FOR_UPDATE: 2021,
-    NAME_REQUIRED_FOR_UPDATE: 2022,
-    EMAIL_INVALID_FOR_UPDATE: 2023,
-    PASSWORD_LENGTH_FOR_UPDATE: 2024,
-    IS_ACTIVE_INVALID_FOR_UPDATE: 2025,
-    IS_DELETED_INVALID_FOR_UPDATE: 2026,
-    ID_NOT_INTEGER_FOR_DELETE: 2031,
-    ID_REQUIRED_FOR_DELETE: 2032,
-    ID_NOT_INTEGER_FOR_GET: 2041,
-    ID_REQUIRED_FOR_GET: 2042,
-    UUID_REQUIRED_FOR_GET: 2051
+const ERROR_TYPES = {
+    NAME_REQUIRED: {
+        code: 2011,
+        message: 'Nome é obrigatório',
+        description: 'O nome não foi fornecido.'
+    },
+    EMAIL_INVALID: {
+        code: 2012,
+        message: 'E-mail inválido',
+        description: 'O e-mail fornecido é inválido.'
+    },
+    EMAIL_REQUIRED: {
+        code: 2013,
+        message: 'E-mail é obrigatório',
+        description: 'O e-mail não foi fornecido.'
+    },
+    PASSWORD_LENGTH: {
+        code: 2014,
+        message: 'A senha deve ter pelo menos 8 caracteres',
+        description: 'A senha deve ter pelo menos 8 caracteres.'
+    },
+    ID_NOT_INTEGER_FOR_UPDATE: 
+    {
+        code: 2021,
+        message: 'ID do usuário deve ser inteiro',
+        description: 'O ID do usuário deve ser um número inteiro.'
+    },
+    NAME_REQUIRED_FOR_UPDATE: {
+        code: 2022,
+        message: 'Nome é obrigatório',
+        description: 'O nome não foi fornecido.'
+    },
+    EMAIL_INVALID_FOR_UPDATE: {
+        code: 2023,
+        message: 'E-mail inválido',
+        description: 'O e-mail fornecido é inválido.'
+    },
+    PASSWORD_LENGTH_FOR_UPDATE: {
+        code: 2024,
+        message: 'A senha deve ter pelo menos 8 caracteres',
+        description: 'A senha deve ter pelo menos 8 caracteres.'
+    },
+    IS_ACTIVE_INVALID_FOR_UPDATE: {
+        code: 2025,
+        message: 'isActive deve ser true ou false',
+        description: 'isActive deve ser true ou false.'
+    },
+    IS_DELETED_INVALID_FOR_UPDATE: {
+        code: 2026,
+        message: 'isDeleted deve ser true ou false',
+        description: 'isDeleted deve ser true ou false.'
+    },
+    ID_NOT_INTEGER_FOR_DELETE: {
+        code: 2031,
+        message: 'ID do usuário deve ser inteiro',
+        description: 'O ID do usuário deve ser um número inteiro.'
+    },
+    ID_REQUIRED_FOR_DELETE: {
+        code: 2032,
+        message: 'ID do usuário é obrigatório',
+        description: 'O ID do usuário não foi fornecido.'
+    },
+    ID_NOT_INTEGER_FOR_GET: {
+        code: 2041,
+        message: 'ID do usuário deve ser um número inteiro',
+        description: 'O ID do usuário deve ser um número inteiro.'
+    },
+    ID_REQUIRED_FOR_GET: {
+        code: 2042,
+        message: 'ID do usuário é obrigatório',
+        description: 'O ID do usuário não foi fornecido.'
+    },
+    UUID_REQUIRED_FOR_GET: {
+        code: 2051,
+        message: 'UUID do usuário é obrigatório',
+        description: 'O UUID do usuário não foi fornecido.'
+    }
 };
 
 
@@ -95,11 +156,11 @@ class UserValidations {
     // Validações para a criação de um usuário
     static create() {
         return [
-            body('name').custom(validateWithErrorCode(value => value && value.trim() !== '', ERROR_CODES.NAME_REQUIRED, 'Nome é obrigatório')),
+            body('name').custom(validateWithErrorCode(value => value && value.trim() !== '', ERROR_TYPES.NAME_REQUIRED.code, ERROR_TYPES.NAME_REQUIRED.message)),
             body('email')
-                .custom(validateWithErrorCode(value => typeof value === 'string' && value.includes('@'), ERROR_CODES.EMAIL_INVALID, 'E-mail inválido'))
-                .custom(validateWithErrorCode(value => value && value.trim() !== '', ERROR_CODES.EMAIL_REQUIRED, 'E-mail é obrigatório')),
-            body('password').custom(validateWithErrorCode(value => value && value.length >= 8, ERROR_CODES.PASSWORD_LENGTH, 'A senha deve ter pelo menos 8 caracteres'))
+                .custom(validateWithErrorCode(value => value && value.trim() !== '', ERROR_TYPES.EMAIL_REQUIRED.code, ERROR_TYPES.EMAIL_REQUIRED.message))
+                .custom(validateWithErrorCode(value => typeof value === 'string' && value.includes('@'), ERROR_TYPES.EMAIL_INVALID.code, ERROR_TYPES.EMAIL_INVALID.message)),
+            body('password').custom(validateWithErrorCode(value => value && value.length >= 8, ERROR_TYPES.PASSWORD_LENGTH.code, ERROR_TYPES.PASSWORD_LENGTH.message))
         ];
     }
 
@@ -107,12 +168,12 @@ class UserValidations {
     static update() {
         return [
             param('id')
-                .custom(validateWithErrorCode(value => !isNaN(parseInt(value)), ERROR_CODES.ID_NOT_INTEGER_FOR_UPDATE, 'ID do usuário deve ser inteiro')),
-            body('name').optional().custom(validateWithErrorCode(value => value && value.trim() !== '', ERROR_CODES.NAME_REQUIRED_FOR_UPDATE, 'Nome é obrigatório')),
-            body('email').optional().custom(validateWithErrorCode(value => typeof value === 'string' && value.includes('@'), ERROR_CODES.EMAIL_INVALID_FOR_UPDATE, 'E-mail inválido')),
-            body('password').optional().custom(validateWithErrorCode(value => value && value.length >= 8, ERROR_CODES.PASSWORD_LENGTH_FOR_UPDATE, 'A senha deve ter pelo menos 8 caracteres')),
-            body('isActive').optional().custom(validateWithErrorCode(value => value === true || value === false, ERROR_CODES.IS_ACTIVE_INVALID_FOR_UPDATE, 'isActive deve ser true ou false')),
-            body('isDeleted').optional().custom(validateWithErrorCode(value => value === true || value === false, ERROR_CODES.IS_DELETED_INVALID_FOR_UPDATE, 'isDeleted deve ser true ou false'))
+                .custom(validateWithErrorCode(value => !isNaN(parseInt(value)), ERROR_TYPES.ID_NOT_INTEGER_FOR_UPDATE.code, ERROR_TYPES.ID_NOT_INTEGER_FOR_UPDATE.message)),
+            body('name').optional().custom(validateWithErrorCode(value => value && value.trim() !== '', ERROR_TYPES.NAME_REQUIRED_FOR_UPDATE.code, ERROR_TYPES.NAME_REQUIRED_FOR_UPDATE.message)),
+            body('email').optional().custom(validateWithErrorCode(value => typeof value === 'string' && value.includes('@'), ERROR_TYPES.EMAIL_INVALID_FOR_UPDATE.code, ERROR_TYPES.EMAIL_INVALID_FOR_UPDATE.message)),
+            body('password').optional().custom(validateWithErrorCode(value => value && value.length >= 8, ERROR_TYPES.PASSWORD_LENGTH_FOR_UPDATE.code, ERROR_TYPES.PASSWORD_LENGTH_FOR_UPDATE.message)),
+            body('isActive').optional().custom(validateWithErrorCode(value => value === true || value === false, ERROR_TYPES.IS_ACTIVE_INVALID_FOR_UPDATE.code, ERROR_TYPES.IS_ACTIVE_INVALID_FOR_UPDATE.message)),
+            body('isDeleted').optional().custom(validateWithErrorCode(value => value === true || value === false, ERROR_TYPES.IS_DELETED_INVALID_FOR_UPDATE.code, ERROR_TYPES.IS_DELETED_INVALID_FOR_UPDATE.message))
         ];
     }
 
@@ -120,8 +181,8 @@ class UserValidations {
     static delete() {
         return [
             param('id')
-                .custom(validateWithErrorCode(value => !isNaN(parseInt(value)), ERROR_CODES.ID_NOT_INTEGER_FOR_DELETE, 'ID do usuário deve ser inteiro'))
-                .custom(validateWithErrorCode(value => value && value.trim() !== '', ERROR_CODES.ID_REQUIRED_FOR_DELETE, 'ID do usuário é obrigatório'))
+                .custom(validateWithErrorCode(value => !isNaN(parseInt(value)), ERROR_TYPES.ID_NOT_INTEGER_FOR_DELETE.code, ERROR_TYPES.ID_NOT_INTEGER_FOR_DELETE.message))
+                .custom(validateWithErrorCode(value => value && value.trim() !== '', ERROR_TYPES.ID_REQUIRED_FOR_DELETE.code, ERROR_TYPES.ID_REQUIRED_FOR_DELETE.message))
         ];
     }
 
@@ -129,8 +190,8 @@ class UserValidations {
     static getById() {
         return [
             param('id')
-                .custom(validateWithErrorCode(value => !isNaN(parseInt(value)), ERROR_CODES.ID_NOT_INTEGER_FOR_GET, 'ID do usuário deve ser um número inteiro'))
-                .custom(validateWithErrorCode(value => value && value.trim() !== '', ERROR_CODES.ID_REQUIRED_FOR_GET, 'ID do usuário é obrigatório'))
+                .custom(validateWithErrorCode(value => !isNaN(parseInt(value)), ERROR_TYPES.ID_NOT_INTEGER_FOR_GET.code, ERROR_TYPES.ID_NOT_INTEGER_FOR_GET.message))
+                .custom(validateWithErrorCode(value => value && value.trim() !== '', ERROR_TYPES.ID_REQUIRED_FOR_GET.code, ERROR_TYPES.ID_REQUIRED_FOR_GET.message))
         ];
     }
 
@@ -143,7 +204,7 @@ class UserValidations {
     static toggleUserActivity() {
         return [
             param('id')
-                .custom(validateWithErrorCode(value => !isNaN(parseInt(value)), ERROR_CODES.ID_NOT_INTEGER_FOR_UPDATE, 'ID do usuário deve ser inteiro')),
+                .custom(validateWithErrorCode(value => !isNaN(parseInt(value)), ERROR_TYPES.ID_NOT_INTEGER_FOR_UPDATE.code, ERROR_TYPES.ID_NOT_INTEGER_FOR_UPDATE.message)),
         ];
     }
 
@@ -152,7 +213,7 @@ class UserValidations {
     static getByUUID() {
         return [
             body('uuid')
-                .custom(validateWithErrorCode(value => value && value.trim() !== '', ERROR_CODES.UUID_REQUIRED_FOR_GET, 'UUID do usuário é obrigatório'))
+                .custom(validateWithErrorCode(value => value && value.trim() !== '', ERROR_TYPES.UUID_REQUIRED_FOR_GET.code, ERROR_TYPES.UUID_REQUIRED_FOR_GET.message))
         ];
     }
 
@@ -160,7 +221,7 @@ class UserValidations {
     static updateByUUID() {
         return [
             body('uuid')
-                .custom(validateWithErrorCode(value => value && value.trim() !== '', ERROR_CODES.UUID_REQUIRED_FOR_GET, 'UUID do usuário é obrigatório'))
+                .custom(validateWithErrorCode(value => value && value.trim() !== '', ERROR_TYPES.UUID_REQUIRED_FOR_GET.code, ERROR_TYPES.UUID_REQUIRED_FOR_GET.message))
         ];
     }
     
@@ -168,7 +229,7 @@ class UserValidations {
     static toggleUserActivityByUUID() {
         return [
             body('uuid')
-                .custom(validateWithErrorCode(value => value && value.trim() !== '', ERROR_CODES.UUID_REQUIRED_FOR_GET, 'UUID do usuário é obrigatório'))
+                .custom(validateWithErrorCode(value => value && value.trim() !== '', ERROR_TYPES.UUID_REQUIRED_FOR_GET.code, ERROR_TYPES.UUID_REQUIRED_FOR_GET.message))
         ];
     }
 
@@ -176,7 +237,7 @@ class UserValidations {
     static deleteByUUID() {
         return [
             body('uuid')
-                .custom(validateWithErrorCode(value => value && value.trim() !== '', ERROR_CODES.UUID_REQUIRED_FOR_GET, 'UUID do usuário é obrigatório'))
+                .custom(validateWithErrorCode(value => value && value.trim() !== '', ERROR_TYPES.UUID_REQUIRED_FOR_GET.code, ERROR_TYPES.UUID_REQUIRED_FOR_GET.message))
         ];
     }
     

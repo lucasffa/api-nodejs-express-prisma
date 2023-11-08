@@ -34,6 +34,7 @@
 const AuthService = require('../services/authService');
 const authService = new AuthService();
 const logger = require('../logs/logger.js');
+const tokenBlacklistCache = require('../middlewares/authMiddleware').tokenBlacklistCache;
 
 class AuthController {
     async login(req, res) {
@@ -52,6 +53,7 @@ class AuthController {
             });
             res.json({ login });
         } catch (error) {
+            console.error('Erro ao autenticar um usuário:', error);
             logger.log({
                 level: 'error',
                 msg: error.message,
@@ -59,6 +61,28 @@ class AuthController {
                 reqId: req.rId
             });
             res.status(error.statusCode || 400).json({ message: error.message, errorCode: error.errorCode });
+        }
+    }
+    
+    async logout(req, res) {
+        try {
+            const token = req.headers['authorization'].split(' ')[1];
+            const tokenBlacklist = req.app.get('tokenBlacklist');
+
+            // Verificar se o token já está na blacklist
+            const isBlacklisted = await tokenBlacklist.isTokenBlacklisted(token);
+            if (isBlacklisted) {
+                return res.status(400).json({ message: 'Token já está na blacklist.' });
+            }
+
+            const reason = 'logout';
+            await tokenBlacklist.addTokenToBlacklist(token, reason);
+            tokenBlacklistCache.set(token, true);
+
+            res.status(200).json({ message: 'Logout bem-sucedido.' });
+        } catch (error) {
+            console.error('Erro ao fazer logout:', error);
+            res.status(500).json({ message: 'Erro interno do servidor.' });
         }
     }
 }

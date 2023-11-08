@@ -75,22 +75,62 @@
 
 
 // Definindo os códigos de erro como um Enum
-const ERROR_CODES = {
-    ID_NOT_FOUND: 1001,
-    USER_NOT_FOUND: 1002,
-    USER_UPDATE_ERROR: 1003,
-    USER_DELETE_ERROR: 1004,
-    USER_INFO_RETRIEVAL_ERROR: 1005,
-    USERS_INFO_RETRIEVAL_ERROR: 1006,
-    USER_CREATE_ERROR: 1007,
-    USER_CREATE_EMAIL_ERROR: 1008,
-    INCORRECT_PASSWORD_ERROR: 1009,
-    UUID_NOT_FOUND: 1010
+const ERROR_TYPES = {
+    ID_NOT_FOUND: {
+        code: 1001,
+        message: 'Não conseguiu encontrar id',
+        description: 'O id não foi encontrado.'
+    },
+    USER_NOT_FOUND: {
+        code: 1002,
+        message: 'Não conseguiu encontrar usuário',
+        description: 'O usuário não foi encontrado.'
+    },
+    USER_UPDATE_ERROR: {
+        code: 1003,
+        message: 'Não conseguiu atualizar usuário',
+        description: 'O usuário não foi atualizado.'
+    },
+    USER_DELETE_ERROR: {
+        code: 1004,
+        message: 'Não conseguiu deletar usuário',
+        description: 'O usuário não foi deletado.'
+    },
+    USER_INFO_RETRIEVAL_ERROR: {
+        code: 1005,
+        message: 'Não conseguiu trazer informações do usuário',
+        description: 'Não foi possível trazer informações do usuário.'
+    },
+    USERS_INFO_RETRIEVAL_ERROR: {
+        code: 1006,
+        message: 'Não conseguiu trazer informações dos usuários',
+        description: 'Não foi possível trazer informações dos usuários.'
+    },
+    USER_CREATE_ERROR: {
+        code: 1007,
+        message: 'Não conseguiu criar usuário',
+        description: 'Não foi possível criar usuário.'
+    },
+    USER_CREATE_EMAIL_ERROR: {
+        code: 1008,
+        message: 'Este e-mail já está registrado',
+        description: 'Não foi possível criar usuário com este e-mail.'
+    },
+    INCORRECT_PASSWORD_ERROR: {
+        code: 1009,
+        message: 'Senha incorreta',
+        description: 'A senha está incorreta.'
+    },
+    UUID_NOT_FOUND: {
+        code: 1010,
+        message: 'Não conseguiu encontrar UUID',
+        description: 'O UUID não foi encontrado.'
+    }
 };
 
 // Classe de erro personalizado para quando um ID não for encontrado
 class IdNotFoundError extends Error {
-    constructor(message = 'Não conseguiu encontrar id', errorCode = ERROR_CODES.ID_NOT_FOUND) {
+    constructor(message = ERROR_TYPES.ID_NOT_FOUND.message, errorCode = ERROR_TYPES.ID_NOT_FOUND.code) {
         super(message);
         this.name = 'IdNotFoundError';
         this.errorCode = errorCode;
@@ -100,7 +140,7 @@ class IdNotFoundError extends Error {
 
 // Classe de erro personalizado para quando um usuário não for encontrado
 class UserCreateError extends Error {
-    constructor(message = 'Não conseguiu criar usuário', errorCode = ERROR_CODES.USER_CREATE_ERROR) {
+    constructor(message = ERROR_TYPES.USER_CREATE_ERROR.message, errorCode = ERROR_TYPES.USER_CREATE_ERROR.code) {
         super(message);
         this.name = 'IdNotFoundError';
         this.errorCode = errorCode;
@@ -110,7 +150,7 @@ class UserCreateError extends Error {
 
 // Classe de erro personalizado para quando um email de usuário não for encontrado
 class UserCreateEmailError extends Error {
-    constructor(email, message = 'Este e-mail já está registrado', errorCode = ERROR_CODES.USER_CREATE_EMAIL_ERROR) {
+    constructor(email, message = ERROR_TYPES.USER_CREATE_EMAIL_ERROR.message, errorCode = ERROR_TYPES.USER_CREATE_EMAIL_ERROR.code) {
         super(`${message}: ${email}`);
         this.name = 'UserCreateEmailError';
         this.errorCode = errorCode;
@@ -121,7 +161,7 @@ class UserCreateEmailError extends Error {
 
 // Classe de erro personalizado para quando um usuário não for encontrado
 class UserNotFoundError extends Error {
-    constructor(message = 'Não conseguiu encontrar usuário', errorCode = ERROR_CODES.USER_NOT_FOUND) {
+    constructor(message = ERROR_TYPES.USER_NOT_FOUND.message, errorCode = ERROR_TYPES.USER_NOT_FOUND.code) {
         super(message);
         this.name = 'UserNotFoundError';
         this.errorCode = errorCode;
@@ -131,7 +171,7 @@ class UserNotFoundError extends Error {
 
 // Classe de erro personalizado para quando um usuário não for atualizado
 class UserUpdateError extends Error {
-    constructor(message = 'Não conseguiu atualizar usuário', errorCode = ERROR_CODES.USER_UPDATE_ERROR) {
+    constructor(message = ERROR_TYPES.USER_UPDATE_ERROR.message, errorCode = ERROR_TYPES.USER_UPDATE_ERROR.code) {
         super(message);
         this.name = 'UserUpdateError';
         this.errorCode = errorCode;
@@ -141,7 +181,7 @@ class UserUpdateError extends Error {
 
 // Classe de erro personalizado para quando um usuário não for deletado
 class UserDeleteError extends Error {
-    constructor(message = 'Não conseguiu deletar usuário', errorCode = ERROR_CODES.USER_DELETE_ERROR) {
+    constructor(message = ERROR_TYPES.USER_DELETE_ERROR.message, errorCode = ERROR_TYPES.USER_DELETE_ERROR.code) {
         super(message);
         this.name = 'UserDeleteError';
         this.errorCode = errorCode;
@@ -151,7 +191,7 @@ class UserDeleteError extends Error {
 
 // Classe de erro personalizado para quando não conseguir trazer informações de um usuário
 class UserInfoRetrievalError extends Error {
-    constructor(message = 'Não conseguiu trazer informações do usuário', errorCode = ERROR_CODES.USER_INFO_RETRIEVAL_ERROR) {
+    constructor(message = ERROR_TYPES.USER_INFO_RETRIEVAL_ERROR.message, errorCode = ERROR_TYPES.USER_INFO_RETRIEVAL_ERROR.code) {
         super(message);
         this.name = 'UserInfoRetrievalError';
         this.errorCode = errorCode;
@@ -161,7 +201,7 @@ class UserInfoRetrievalError extends Error {
 
 // Classe de erro personalizado para quando não conseguir trazer informações de todos os usuários
 class UsersInfoRetrievalError extends Error {
-    constructor(message = 'Não conseguiu trazer informações dos usuários', errorCode = ERROR_CODES.USERS_INFO_RETRIEVAL_ERROR) {
+    constructor(message = ERROR_TYPES.USERS_INFO_RETRIEVAL_ERROR.message, errorCode = ERROR_TYPES.USERS_INFO_RETRIEVAL_ERROR.code) {
         super(message);
         this.name = 'UsersInfoRetrievalError';
         this.errorCode = errorCode;
@@ -171,16 +211,17 @@ class UsersInfoRetrievalError extends Error {
 
 // Classe de erro personalizado para quando uma senha dada estiver incorreta
 class UserIncorrectPasswordError extends Error {
-    constructor(message = 'Senha incorreta', errorCode = ERROR_CODES.INCORRECT_PASSWORD_ERROR) {
+    constructor(message = ERROR_TYPES.INCORRECT_PASSWORD_ERROR.message, errorCode = ERROR_TYPES.INCORRECT_PASSWORD_ERROR.code) {
         super(message);
-        this.name = 'IncorrectPasswordError';
+        this.name = 'UserIncorrectPasswordError';
+        this.errorCode = errorCode;
         this.statusCode = 400;  // Bad Request
     }
 }
 
 // Classe de erro personalizado para quando um UUID não for encontrado
 class UUIDNotFoundError extends Error {
-    constructor(message = 'Não conseguiu encontrar UUID', errorCode = ERROR_CODES.UUID_NOT_FOUND) {
+    constructor(message = ERROR_TYPES.UUID_NOT_FOUND.message, errorCode = ERROR_TYPES.UUID_NOT_FOUND.code) {
         super(message);
         this.name = 'UUIDNotFoundError';
         this.errorCode = errorCode;
@@ -200,5 +241,5 @@ module.exports = {
     UserCreateEmailError,
     UserIncorrectPasswordError,
     UUIDNotFoundError,
-    ERROR_CODES
+    ERROR_TYPES
 };
